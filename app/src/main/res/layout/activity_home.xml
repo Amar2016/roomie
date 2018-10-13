@@ -6,5 +6,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".HomeActivity">
-
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+    <TextView
+        android:id="@+id/textViewName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+    <TextView
+        android:id="@+id/textViewEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+    <Button
+        android:id="@+id/signOut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign Out"
+        android:onClick="signOut"/>
 </LinearLayout>
