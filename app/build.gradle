@@ -31,9 +31,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
 
     implementation 'com.google.firebase:firebase-database:16.0.3'
+    implementation 'com.google.firebase:firebase-core:16.0.4'
     implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.firebaseui:firebase-ui-auth:4.2.0'
-    compile 'com.google.firebase:firebase-invites:16.0.4'
+    implementation 'com.google.firebase:firebase-invites:16.0.4'
     implementation 'com.google.firebase:firebase-dynamic-links:16.1.2'
 }
 

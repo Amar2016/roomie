@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.dynamiclinks.DynamicLink.Builder;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
@@ -58,7 +59,8 @@ public class HomeActivity extends AppCompatActivity {
                 // Code here executes on main thread after user presses button
                 Log.d("Amit","on add task");
 
-                String shareUri = createShareUri(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                String shareUri = createShareUri(User.getInstance().getmRoomId());
+
                 sendInvitation(createLink(shareUri));
             }
         });
@@ -71,7 +73,7 @@ public class HomeActivity extends AppCompatActivity {
     public Uri createLink(String myUri) {
         DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(myUri))
-                .setDynamicLinkDomain("roomieoye.page.link")
+                .setDynamicLinkDomain("oyeroomie.page.link")
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
                 .buildDynamicLink();
 
@@ -88,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<ShortDynamicLink> task) {
                         if (task.isSuccessful()) {
                             // Short link created
+                            Log.d("Amit**","task");
                             Uri shortLink = task.getResult().getShortLink();
                             String referrerName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                             String subject = String.format("%s wants you to play MyExampleGame!", referrerName);
@@ -107,6 +110,7 @@ public class HomeActivity extends AppCompatActivity {
                         } else {
                             // Error
                             // ...
+                            Log.d("Amit**","Fail");
                         }
                     }
                 });
@@ -135,3 +139,5 @@ public class HomeActivity extends AppCompatActivity {
 
 
 }
+
+//keytool -exportcert -list -v -alias androiddebugkey -keystore %USERPROFILE%\.android\debug.keystore

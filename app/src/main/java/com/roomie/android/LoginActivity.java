@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
+    private String mTempReferredid;
 
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mFirebaseAuth;
@@ -78,8 +79,10 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
                         // Get deep link from result (may be null if no link is found)
+                        Log.d("ROOMIE","Successful referral");
                         Uri deepLink = null;
                         if (pendingDynamicLinkData != null) {
+                            Log.d("ROOMIE","PendingDynamicLink");
                             deepLink = pendingDynamicLinkData.getLink();
                         }
                         //
@@ -90,26 +93,11 @@ public class LoginActivity extends AppCompatActivity {
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         if (user == null
                                 && deepLink != null
-                                && deepLink.getBooleanQueryParameter("invitedby", false)) {
-                            String referrerUid = deepLink.getQueryParameter("invitedby");
-                            createAnonymousAccountWithReferrerInfo(referrerUid);
+                                && deepLink.getBooleanQueryParameter("invitedBy", false)) {
+                            Log.d("ROOMIE","Referral id is this");
+                            mTempReferredid = deepLink.getQueryParameter("invitedBy");
+                            Log.d("ROOMIE",mTempReferredid);
                         }
-                    }
-                });
-    }
-
-    private void createAnonymousAccountWithReferrerInfo(final String referrerUid) {
-        FirebaseAuth.getInstance()
-                .signInAnonymously()
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(AuthResult authResult) {
-                        // Keep track of the referrer in the RTDB. Database calls
-                        // will depend on the structure of your app's RTDB.
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        DatabaseReference userRecord = mUsersDatabaseReference.child(user.getUid());
-                        userRecord.child("referred_by").setValue(referrerUid);
-                        Log.d(TAG, userRecord + "added to database");
                     }
                 });
     }
@@ -168,14 +156,21 @@ public class LoginActivity extends AppCompatActivity {
 
                             // Add to Firebase database Users node after checking if new user
                             boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
-                            if(isNew){
+                            if(isNew && (mTempReferredid == null)){
                                 // User has a single instance.
                                 /* User.getInstance().setmEmail(user.getEmail().toString());
                                 User.getInstance().setmName(user.getDisplayName().toString()); */
                                 // mUsersDatabaseReference.push().setValue(User.getInstance());
                                 Toast.makeText(LoginActivity.this, "You are signed in again.", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
-                            }else{
+                            }else if (isNew && (mTempRoomdId != null)){
+                                //push the user with roomid
+                                User.getInstance().setmRoomId(mTempReferredid);
+                                User.getInstance().setmEmail(user.getEmail());
+                                User.getInstance().setmName(user.getDisplayName());
+                                mUsersDatabaseReference.push().setValue(User.getInstance());
+                                startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                            }else {
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             }
 
