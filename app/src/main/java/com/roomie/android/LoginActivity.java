@@ -1,6 +1,6 @@
 package com.roomie.android;
 
-import android.app.ProgressDialog;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.common.api.ApiException;
 import com.google.firebase.auth.AuthCredential;
@@ -25,6 +26,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -41,8 +44,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        mProgressBar = (ProgressBar) findViewById(R.id.pbloading);
 
+        mProgressBar = findViewById(R.id.pbloading);
         /* Customizing google sigin in button on the login page */
         SignInButton signinbtn = (SignInButton) findViewById(R.id.sign_in_button);
         signinbtn.setColorScheme(SignInButton.COLOR_LIGHT);
@@ -68,6 +71,47 @@ public class LoginActivity extends AppCompatActivity {
                 signIn();
             }
         });
+
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                        }
+                        //
+                        // If the user isn't signed in and the pending Dynamic Link is
+                        // an invitation, sign in the user anonymously, and record the
+                        // referrer's UID.
+                        //
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        if (user == null
+                                && deepLink != null
+                                && deepLink.getBooleanQueryParameter("invitedby", false)) {
+                            String referrerUid = deepLink.getQueryParameter("invitedby");
+                            createAnonymousAccountWithReferrerInfo(referrerUid);
+                        }
+                    }
+                });
+    }
+
+    private void createAnonymousAccountWithReferrerInfo(final String referrerUid) {
+        FirebaseAuth.getInstance()
+                .signInAnonymously()
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        // Keep track of the referrer in the RTDB. Database calls
+                        // will depend on the structure of your app's RTDB.
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        DatabaseReference userRecord = mUsersDatabaseReference.child(user.getUid());
+                        userRecord.child("referred_by").setValue(referrerUid);
+                        Log.d(TAG, userRecord + "added to database");
+                    }
+                });
     }
 
     private void signIn() {
