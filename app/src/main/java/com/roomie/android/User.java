@@ -3,19 +3,23 @@ package com.roomie.android;
 import java.util.ArrayList;
 
 public class User {
+    private static User mUser = null;
     private String mEmail;
     private String mName;
     private String mRoomId;
-    private ArrayList mTasksToDo;
-    private ArrayList mTasksAssignedToOthers;
+    //private ArrayList mTasksToDo;
+    //private ArrayList mTasksAssignedToOthers;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String email, String name){
-        this.mEmail = email;
-        this.mName = name;
+    public static User getInstance()
+    {
+        if (mUser == null)
+            mUser = new User();
+
+        return mUser;
     }
 
     public String getmEmail() {
@@ -42,7 +46,7 @@ public class User {
         this.mRoomId = mRoomId;
     }
 
-    public ArrayList getmTasksToDo() {
+    /* public ArrayList getmTasksToDo() {
         return mTasksToDo;
     }
 
@@ -56,5 +60,13 @@ public class User {
 
     public void setmTasksAssignedToOthers(ArrayList mTasksAssignedToOthers) {
         this.mTasksAssignedToOthers = mTasksAssignedToOthers;
+    } */
+
+    public boolean equals(Object usr){
+        if(usr instanceof User){
+            User toCompare = (User) usr;
+            return this.mEmail.equals(toCompare.getmEmail().toString());
+        }
+        return false;
     }
 }
