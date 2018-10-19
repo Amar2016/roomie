@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if(mFirebaseAuth.getCurrentUser() != null){
             finish();
-            startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
+            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
         }
     }
 
@@ -126,9 +126,10 @@ public class LoginActivity extends AppCompatActivity {
                             boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
                             if(isNew){
                                 // User has a single instance.
-                                /*User.getInstance().setmEmail(user.getEmail().toString());
+                                /* User.getInstance().setmEmail(user.getEmail().toString());
                                 User.getInstance().setmName(user.getDisplayName().toString()); */
-                                //mUsersDatabaseReference.push().setValue(User.getInstance());
+                                // mUsersDatabaseReference.push().setValue(User.getInstance());
+                                Toast.makeText(LoginActivity.this, "You are signed in again.", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
                             }else{
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
@@ -142,5 +143,10 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }
