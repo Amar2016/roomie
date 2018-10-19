@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
-    private String mTempReferredid;
+    private String mTempRoomId;
 
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mFirebaseAuth;
@@ -95,8 +95,8 @@ public class LoginActivity extends AppCompatActivity {
                                 && deepLink != null
                                 && deepLink.getBooleanQueryParameter("invitedBy", false)) {
                             Log.d("ROOMIE","Referral id is this");
-                            mTempReferredid = deepLink.getQueryParameter("invitedBy");
-                            Log.d("ROOMIE",mTempReferredid);
+                            mTempRoomId = deepLink.getQueryParameter("invitedBy");
+                            Log.d("ROOMIE",mTempRoomId);
                         }
                     }
                 });
@@ -156,16 +156,16 @@ public class LoginActivity extends AppCompatActivity {
 
                             // Add to Firebase database Users node after checking if new user
                             boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
-                            if(isNew && (mTempReferredid == null)){
+                            if(isNew && (mTempRoomId == null)){
                                 // User has a single instance.
                                 /* User.getInstance().setmEmail(user.getEmail().toString());
                                 User.getInstance().setmName(user.getDisplayName().toString()); */
                                 // mUsersDatabaseReference.push().setValue(User.getInstance());
                                 Toast.makeText(LoginActivity.this, "You are signed in again.", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
-                            }else if (isNew && (mTempRoomdId != null)){
+                            }else if (isNew && (mTempRoomId != null)){
                                 //push the user with roomid
-                                User.getInstance().setmRoomId(mTempReferredid);
+                                User.getInstance().setmRoomId(mTempRoomId);
                                 User.getInstance().setmEmail(user.getEmail());
                                 User.getInstance().setmName(user.getDisplayName());
                                 mUsersDatabaseReference.push().setValue(User.getInstance());
