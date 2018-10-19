@@ -125,11 +125,17 @@ public class LoginActivity extends AppCompatActivity {
                             // Add to Firebase database Users node after checking if new user
                             boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
                             if(isNew){
-                                User newUser = new User(user.getEmail().toString(), user.getDisplayName().toString());
-                                mUsersDatabaseReference.push().setValue(newUser);
+                                // User has a single instance.
+                                /* User.getInstance().setmEmail(user.getEmail().toString());
+                                User.getInstance().setmName(user.getDisplayName().toString()); */
+                                // mUsersDatabaseReference.push().setValue(User.getInstance());
+                                Toast.makeText(LoginActivity.this, "You are signed in again.", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
+                            }else{
+                                startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             }
 
-                            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -137,5 +143,10 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }
