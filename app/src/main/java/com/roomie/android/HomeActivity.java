@@ -93,11 +93,10 @@ public class HomeActivity extends AppCompatActivity {
                             Log.d("Amit**","task");
                             Uri shortLink = task.getResult().getShortLink();
                             String referrerName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-                            String subject = String.format("%s wants you to play MyExampleGame!", referrerName);
-                            String msg = "Let's play MyExampleGame together! Use my referrer link: "
+                            String subject = String.format("%s wants you to check out OyeRoomie!", referrerName);
+                            String msg = "Use my invite link: "
                                     + shortLink.toString();
-                            String msgHtml = String.format("<p>Let's play MyExampleGame together! Use my "
-                                    + "<a href=\"%s\">referrer link</a>!</p>", shortLink.toString());
+                            String msgHtml = String.format("<p>Use my invite link: " + "<a href=\"%s\">referrer link</a>!</p>", shortLink.toString());
 
                             Intent intent = new Intent(Intent.ACTION_SENDTO);
                             intent.setData(Uri.parse("mailto:")); // only email apps should handle this

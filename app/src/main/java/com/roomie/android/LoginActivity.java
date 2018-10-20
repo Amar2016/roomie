@@ -32,6 +32,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
+import java.util.HashMap;
+
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
@@ -187,7 +189,9 @@ public class LoginActivity extends AppCompatActivity {
                                                         count = count + 1;
                                                         String newCount = Integer.toString(count);
                                                         String newUserKey = "user" + newCount;
-                                                        mRoomsDatabaseReference.child(mTempRoomId).child("Users").child("count").setValue(newCount);
+                                                        HashMap<String, Object> newChild = new HashMap<>();
+                                                        newChild.put("count", newCount);
+                                                        mRoomsDatabaseReference.child(mTempRoomId).child("Users").updateChildren(newChild);
                                                         mRoomsDatabaseReference.child(mTempRoomId).child("Users").child(newUserKey).setValue(userId);
                                                     }
 
