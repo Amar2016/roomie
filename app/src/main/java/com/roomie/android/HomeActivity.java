@@ -73,7 +73,7 @@ public class HomeActivity extends AppCompatActivity {
     public Uri createLink(String myUri) {
         DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(myUri))
-                .setDynamicLinkDomain("oyeroomie.page.link")
+                .setDynamicLinkDomain("roomieoye.page.link")
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
                 .buildDynamicLink();
 

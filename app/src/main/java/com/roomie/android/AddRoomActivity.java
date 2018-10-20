@@ -70,7 +70,11 @@ public class AddRoomActivity extends Activity {
                 User.getInstance().setmRoomId(roomId);
                 User.getInstance().setmName(mCurrUser.getDisplayName());
                 User.getInstance().setmEmail(mCurrUser.getEmail());
-                mUsersDatabaseReference.push().setValue(User.getInstance());
+                mTemp = mUsersDatabaseReference.push();
+                String userId = mTemp.getKey();
+                mTemp.setValue(User.getInstance());
+                mRoomsDatabaseReference.child(roomId).child("Users").child("count").setValue("1");
+                mRoomsDatabaseReference.child(roomId).child("Users").child("user1").setValue(userId);
 
                 Intent myIntent = new Intent(view.getContext(), HomeActivity.class);
                 startActivityForResult(myIntent, 0);
