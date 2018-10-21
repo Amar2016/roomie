@@ -24,11 +24,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
@@ -49,16 +46,15 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mProgressBar = findViewById(R.id.pbloading);
-        /* Customizing google sigin in button on the login page */
-        SignInButton signinbtn = (SignInButton) findViewById(R.id.sign_in_button);
-        signinbtn.setColorScheme(SignInButton.COLOR_LIGHT);
-        signinbtn.setSize(SignInButton.SIZE_WIDE);
-
+        // Initialise Firebase components
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("Users");
+
+        // Customizing google sigin in button on the login page
+        SignInButton signInBtn = (SignInButton) findViewById(R.id.sign_in_button);
+        signInBtn.setColorScheme(SignInButton.COLOR_LIGHT);
+        signInBtn.setSize(SignInButton.SIZE_WIDE);
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -68,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        mProgressBar = findViewById(R.id.pbloading);
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,14 +85,9 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d("ROOMIE","PendingDynamicLink");
                             deepLink = pendingDynamicLinkData.getLink();
                         }
-                        //
-                        // If the user isn't signed in and the pending Dynamic Link is
-                        // an invitation, sign in the user anonymously, and record the
-                        // referrer's UID.
-                        //
+
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        if (user == null
-                                && deepLink != null
+                        if (user == null && deepLink != null
                                 && deepLink.getBooleanQueryParameter("invitedBy", false)) {
                             Log.d("ROOMIE","Referral id is this");
                             mTempRoomId = deepLink.getQueryParameter("invitedBy");
@@ -154,22 +146,25 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser mCurrUser = mFirebaseAuth.getCurrentUser();
+                            FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "You are signed in.", Toast.LENGTH_LONG).show();
 
-                            // Add to Firebase database Users node after checking if new user
+                            // Checking if new user
                             boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
                             if(isNew && (mTempRoomId == null)){
+                                // New User without invite
                                 Toast.makeText(LoginActivity.this, "You are signed in again.", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
                             }else if (isNew && (mTempRoomId != null)){
-                                String userID = Utility.createNewUser(mTempRoomId,mCurrUser);
-                                Log.d("ROOMIE",userID);
-                                Log.d("Roomie",mTempRoomId);
-                                Utility.addUserToRoom(mTempRoomId,userID);
+                                // New User with invite
+                                String userID = Utility.createNewUser(mTempRoomId, currentUser);
+                                Log.d("ROOMIE", "The current user id is : " + userID);
+                                Log.d("ROOMIE", "The current room id is : " + mTempRoomId);
+                                Utility.addUserToRoom(mTempRoomId, userID);
 
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             }else {
+                                // Returning User
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             }
 

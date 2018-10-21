@@ -19,9 +19,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class AddTaskActivity extends Activity {
 
-    /**
-     * Called when the activity is first created.
-     */
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;

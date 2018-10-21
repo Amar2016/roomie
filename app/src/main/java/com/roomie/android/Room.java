@@ -31,7 +31,7 @@ public class Room {
                 //Add already exist toast
             }
         }
-    }
+
 
     public void removeUserFromRoom(String uid){
         mUsers.remove(uid);

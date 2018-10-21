@@ -19,48 +19,46 @@ public class Utility {
 
     Utility(){}
 
-    /* Adds a new user to firebase database and return the new user key */
-    public static String createNewUser(String mTempRoomId, FirebaseUser user){
-        User.getInstance().setmRoomId(mTempRoomId);
+    // Adds a new user to firebase database and return the new user id
+    public static String createNewUser(String roomId, FirebaseUser user){
+        User.getInstance().setmRoomId(roomId);
         User.getInstance().setmEmail(user.getEmail());
         User.getInstance().setmName(user.getDisplayName());
-        DatabaseReference mTempUser = FirebaseDatabase.getInstance().getReference().child("Users").push();
-        final String userID = mTempUser.getKey();
-        mTempUser.setValue(User.getInstance());
+        DatabaseReference newUserRef = FirebaseDatabase.getInstance().getReference().child("Users").push();
+        final String userID = newUserRef.getKey();
+        newUserRef.setValue(User.getInstance());
         return userID;
     }
 
-    /* Adds a new room to firebase database and return the room key*/
-    public static String createNewRoom(String name){
-        Room room = new Room(name);
+    // Adds a new room to firebase database and returns the new room id
+    public static String createNewRoom(String roomName){
+        Room room = new Room(roomName);
         DatabaseReference mTempRoom = FirebaseDatabase.getInstance().getReference().child("Rooms").push();
         final String roomID = mTempRoom.getKey();
         mTempRoom.setValue(room);
         return roomID;
     }
 
-    public static void addUserToRoom(final String mTempRoomId,final String userID){
-        DatabaseReference mTemp = FirebaseDatabase.getInstance().getReference().child("Rooms").child(mTempRoomId);
-        final Room[] rooms= new Room[1] ;
+    public static void addUserToRoom(final String roomId,final String userID){
+        DatabaseReference roomRef = FirebaseDatabase.getInstance().getReference().child("Rooms").child(roomId);
 
-        mTemp.addListenerForSingleValueEvent(new ValueEventListener() {
+        roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("Roomie2",dataSnapshot.getKey());
-                Log.d("Roomie3","Inside database snapshot");
+                Log.d("Roomie2", dataSnapshot.getKey());
+                Log.d("Roomie3", "Inside database snapshot");
                 Room room = dataSnapshot.getValue(Room.class);
-                Log.d("Roomie4",room.getmName());
+                Log.d("Roomie4", room.getmName());
                 for(String user : room.getmUsers()){
-                    Log.d("Roomie5",user);
+                    Log.d("Roomie5", user);
                 }
                 room.addUserToRoom(userID,this);
-                DatabaseReference mTemp1 = FirebaseDatabase.getInstance().getReference("Rooms").child(mTempRoomId);
-                mTemp1.setValue(room);
-                // your message is here do what you wan
+                DatabaseReference tempRef = FirebaseDatabase.getInstance().getReference("Rooms").child(roomId);
+                tempRef.setValue(room);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.i("dberror",databaseError.getMessage());
+                Log.i("dberror", databaseError.getMessage());
             }
         });
 

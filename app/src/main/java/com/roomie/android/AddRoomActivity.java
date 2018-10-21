@@ -18,9 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 
 
 public class AddRoomActivity extends Activity {
-    /**
-     * Called when the activity is first created.
-     */
+
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mRoomsDatabaseReference;
@@ -30,8 +28,8 @@ public class AddRoomActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
-        mFirebaseAuth = FirebaseAuth.getInstance();
 
+        mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mRoomsDatabaseReference = mFirebaseDatabase.getReference().child("Rooms");
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("Users");
