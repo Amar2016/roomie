@@ -1,58 +1,54 @@
 package com.roomie.android;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 public class Room {
 
     //private String mRoomId;
     private String mName;
-    private String mRoomId;
-    private ArrayList<User> mUsers;
+    private ArrayList<String> mUsers;
     private ArrayList<Task> mTasks;
-    public int SUCCESSFUL = 0;
-    public int UNSUCCESSFUL = -1;
 
     public Room(String name){
         //this.mRoomId = roomId;
         this.mName = name;
+        mTasks = new ArrayList<>();
+        mUsers = new ArrayList<>();
     }
 
-    public int addUserToRoom(User user){
-        if(!mUsers.contains(user)) {
-            mUsers.add(user);
-            return SUCCESSFUL;
-        }
-        return UNSUCCESSFUL;
+    public Room(){
+        mTasks = new ArrayList<>();
+        mUsers = new ArrayList<>();
     }
 
-    public int removeUserFromRoom(User user){
-        if(mUsers.contains(user)){
-            mUsers.remove(user);
-            return SUCCESSFUL;
+    public void addUserToRoom(String uid, Object obj) {
+            if(!mUsers.contains(uid)){
+                mUsers.add(uid);
+            }else{
+                //Add already exist toast
+            }
         }
-        return UNSUCCESSFUL;
+    }
+
+    public void removeUserFromRoom(String uid){
+        mUsers.remove(uid);
     }
 
     public int addTask(Task task){
         if(mTasks.add(task)){
-            return SUCCESSFUL;
+            return Utility.SUCCESSFUL;
         }
-        return UNSUCCESSFUL;
+        return Utility.UNSUCCESSFUL;
     }
 
     public int removeTask(Task task){
         if(mTasks.remove(task)){
-            return SUCCESSFUL;
+            return Utility.SUCCESSFUL;
         }
-        return UNSUCCESSFUL;
-    }
-
-    public String getmRoomId() {
-        return mRoomId;
-    }
-
-    public void setmRoomId(String mRoomId) {
-        this.mRoomId = mRoomId;
+        return Utility.UNSUCCESSFUL;
     }
 
     public String getmName() {
@@ -62,4 +58,21 @@ public class Room {
     public void setmName(String mName) {
         this.mName = mName;
     }
+
+    public ArrayList<String> getmUsers(){
+        return this.mUsers;
+    }
+
+    public void setmUsers(ArrayList<String> mUsers){
+        this.mUsers = mUsers;
+    }
+
+    public ArrayList<Task> getmTasks(){
+        return mTasks;
+    }
+
+    public void setmTasks(ArrayList<Task> mTasks){
+        this.mTasks = mTasks;
+    }
+
 }

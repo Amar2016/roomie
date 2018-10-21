@@ -45,36 +45,10 @@ public class AddRoomActivity extends Activity {
                 EditText mText = (EditText) findViewById(R.id.room_name);
                 String name = mText.getText().toString();
                 FirebaseUser mCurrUser = mFirebaseAuth.getCurrentUser();
-                DatabaseReference mTemp = mRoomsDatabaseReference.push();
-                String roomId = mTemp.getKey();
-                mTemp.setValue(new Room(name));
 
-                //To-do make a template for this.
-                mTemp.child(roomId).getRef().addValueEventListener(new ValueEventListener() {
-
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()){
-                            Room room = dataSnapshot.getValue(Room.class);
-                            // your message is here do what you want
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.i("dberror",databaseError.getMessage());
-                    }
-                });
-
-
-                User.getInstance().setmRoomId(roomId);
-                User.getInstance().setmName(mCurrUser.getDisplayName());
-                User.getInstance().setmEmail(mCurrUser.getEmail());
-                mTemp = mUsersDatabaseReference.push();
-                String userId = mTemp.getKey();
-                mTemp.setValue(User.getInstance());
-                mRoomsDatabaseReference.child(roomId).child("Users").child("count").setValue("1");
-                mRoomsDatabaseReference.child(roomId).child("Users").child("user1").setValue(userId);
+                String roomId = Utility.createNewRoom(name);
+                String userID = Utility.createNewUser(roomId,mCurrUser);
+                Utility.addUserToRoom(roomId,userID);
 
                 Intent myIntent = new Intent(view.getContext(), HomeActivity.class);
                 startActivityForResult(myIntent, 0);

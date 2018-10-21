@@ -62,11 +62,5 @@ public class User {
         this.mTasksAssignedToOthers = mTasksAssignedToOthers;
     } */
 
-    public boolean equals(Object usr){
-        if(usr instanceof User){
-            User toCompare = (User) usr;
-            return this.mEmail.equals(toCompare.getmEmail().toString());
-        }
-        return false;
-    }
+
 }

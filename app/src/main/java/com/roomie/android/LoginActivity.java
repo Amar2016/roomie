@@ -32,8 +32,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
-import java.util.HashMap;
-
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "SignInActivity";
@@ -41,12 +39,9 @@ public class LoginActivity extends AppCompatActivity {
     private String mTempRoomId;
 
     private GoogleSignInClient mGoogleSignInClient;
-
     private FirebaseAuth mFirebaseAuth;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
-    private DatabaseReference mRoomsDatabaseReference;
-
     private ProgressBar mProgressBar;
 
     @Override
@@ -54,17 +49,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-
-
-        // Customizing google sigIn in button on the login page
+        mProgressBar = findViewById(R.id.pbloading);
+        /* Customizing google sigin in button on the login page */
         SignInButton signinbtn = (SignInButton) findViewById(R.id.sign_in_button);
         signinbtn.setColorScheme(SignInButton.COLOR_LIGHT);
         signinbtn.setSize(SignInButton.SIZE_WIDE);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("Users");
-        mRoomsDatabaseReference = mFirebaseDatabase.getReference().child("Rooms");
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -73,8 +67,6 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        mProgressBar = findViewById(R.id.pbloading);
 
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +88,11 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d("ROOMIE","PendingDynamicLink");
                             deepLink = pendingDynamicLinkData.getLink();
                         }
-
+                        //
+                        // If the user isn't signed in and the pending Dynamic Link is
+                        // an invitation, sign in the user anonymously, and record the
+                        // referrer's UID.
+                        //
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                         if (user == null
                                 && deepLink != null
@@ -158,58 +154,24 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mFirebaseAuth.getCurrentUser();
+                            FirebaseUser mCurrUser = mFirebaseAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "You are signed in.", Toast.LENGTH_LONG).show();
 
                             // Add to Firebase database Users node after checking if new user
                             boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
-
                             if(isNew && (mTempRoomId == null)){
-                                // New user without invite link
                                 Toast.makeText(LoginActivity.this, "You are signed in again.", Toast.LENGTH_LONG).show();
                                 startActivity(new Intent(LoginActivity.this, AddRoomActivity.class));
                             }else if (isNew && (mTempRoomId != null)){
-                                // New user with invite link
-                                // Push the user with roomId
-                                User.getInstance().setmRoomId(mTempRoomId);
-                                User.getInstance().setmEmail(user.getEmail());
-                                User.getInstance().setmName(user.getDisplayName());
-                                //mUsersDatabaseReference.orderByChild("mRoomId").equalTo(mTempRoomId).getRef().getParent().getKey();
-
-                                DatabaseReference mTemp = mUsersDatabaseReference.push();
-                                final String userId = mTemp.getKey();
-                                mTemp.setValue(User.getInstance());
-
-                                mRoomsDatabaseReference.child(mTempRoomId).child("Users").child("count")
-                                        .addListenerForSingleValueEvent(
-                                                new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                        int count = Integer.parseInt(dataSnapshot.getValue().toString());
-                                                        count = count + 1;
-                                                        String newCount = Integer.toString(count);
-                                                        String newUserKey = "user" + newCount;
-                                                        HashMap<String, Object> newChild = new HashMap<>();
-                                                        newChild.put("count", newCount);
-                                                        mRoomsDatabaseReference.child(mTempRoomId).child("Users").updateChildren(newChild);
-                                                        mRoomsDatabaseReference.child(mTempRoomId).child("Users").child(newUserKey).setValue(userId);
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                    }
-                                                });
-
-
-
+                                String userID = Utility.createNewUser(mTempRoomId,mCurrUser);
+                                Log.d("ROOMIE",userID);
+                                Log.d("Roomie",mTempRoomId);
+                                Utility.addUserToRoom(mTempRoomId,userID);
 
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             }else {
-                                // Returning user
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                             }
-
 
                         } else {
                             // If sign in fails, display a message to the user.
